@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Parser - Gemini OCR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            padding: 60px 40px;
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-section:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        .upload-section h3 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .upload-section p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .api-key-section {
+            margin-bottom: 30px;
+        }
+
+        .api-key-section .form-group {
+            max-width: 100%;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .experience-item,
+        .education-item,
+        .cert-item {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #e84118;
+            transform: scale(1.1);
+        }
+
+        .add-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .skill-tag {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .skill-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .download-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .upload-section {
+                padding: 40px 20px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 CV Parser</h1>
+            <p>Upload your PDF CV and let AI extract & edit your information</p>
+        </div>
+
+        <div class="content">
+            <div class="api-key-section">
+                <div class="form-group">
+                    <label for="apiKey">Gemini API Key</label>
+                    <input type="text" id="apiKey" placeholder="Enter your Gemini API key" />
+                </div>
+            </div>
+
+            <div id="uploadSection" class="upload-section">
+                <div class="upload-icon">📤</div>
+                <h3>Upload Your CV (PDF)</h3>
+                <p>Click to browse or drag and drop your PDF file here</p>
+                <input type="file" id="fileInput" accept=".pdf" class="hidden">
+            </div>
+
+            <div id="loadingSection" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Processing your CV with Gemini AI...</p>
+            </div>
+
+            <div id="formSection" class="hidden">
+                <form id="cvForm">
+                    <div class="form-section">
+                        <h2>Personal Information</h2>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="fullName" placeholder="John Doe">
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="email" placeholder="john@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" id="phone" placeholder="+1 234 567 8900">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>LinkedIn</label>
+                                <input type="text" id="linkedin" placeholder="linkedin.com/in/johndoe">
+                            </div>
+                            <div class="form-group">
+                                <label>Location</label>
+                                <input type="text" id="location" placeholder="New York, USA">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Professional Summary</h2>
+                        <div class="form-group">
+                            <textarea id="summary" placeholder="Brief professional summary..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Work Experience</h2>
+                        <div id="experienceContainer"></div>
+                        <button type="button" class="add-btn" onclick="addExperience()">+ Add Experience</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Education</h2>
+                        <div id="educationContainer"></div>
+                        <button type="button" class="add-btn" onclick="addEducation()">+ Add Education</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Skills</h2>
+                        <div class="skills-container" id="skillsContainer"></div>
+                        <div class="form-group">
+                            <input type="text" id="skillInput" placeholder="Type a skill and press Enter">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Certifications</h2>
+                        <div id="certContainer"></div>
+                        <button type="button" class="add-btn" onclick="addCertification()">+ Add Certification</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h2>Languages</h2>
+                        <div class="form-group">
+                            <textarea id="languages"
+                                placeholder="e.g., English (Native), Spanish (Fluent), French (Intermediate)"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="button" class="download-btn" onclick="downloadPDF()">📥 Download CV as PDF</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic script structure - add your actual CV parsing logic here
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInput = document.getElementById('fileInput');
+        
+        uploadSection.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', handleFileUpload);
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                // Add your PDF processing logic here
+                console.log('File uploaded:', file.name);
+            }
+        }
+
+        function addExperience() {
+            // Add experience entry
+        }
+
+        function addEducation() {
+            // Add education entry
+        }
+
+        function addCertification() {
+            // Add certification entry
+        }
+
+        function downloadPDF() {
+            // Generate PDF from form data
+        }
+
+        // Skill input handler
+        const skillInput = document.getElementById('skillInput');
+        skillInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && skillInput.value.trim()) {
+                e.preventDefault();
+                addSkill(skillInput.value.trim());
+                skillInput.value = '';
+            }
+        });
+
+        function addSkill(skill) {
+            const container = document.getElementById('skillsContainer');
+            const tag = document.createElement('div');
+            tag.className = 'skill-tag';
+            tag.innerHTML = `
+                ${skill}
+                <button onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(tag);
+        }
+    </script>
+</body>
+
+</html>
