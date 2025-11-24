@@ -403,62 +403,7 @@
         </div>
     </div>
 
-    <script>
-        // Basic script structure - add your actual CV parsing logic here
-        const uploadSection = document.getElementById('uploadSection');
-        const fileInput = document.getElementById('fileInput');
-        
-        uploadSection.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', handleFileUpload);
-
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file && file.type === 'application/pdf') {
-                // Add your PDF processing logic here
-                console.log('File uploaded:', file.name);
-            }
-        }
-
-        function addExperience() {
-            // Add experience entry
-        }
-
-        function addEducation() {
-            // Add education entry
-        }
-
-        function addCertification() {
-            // Add certification entry
-        }
-
-        function downloadPDF() {
-            // Generate PDF from form data
-        }
-
-        // Skill input handler
-        const skillInput = document.getElementById('skillInput');
-        skillInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && skillInput.value.trim()) {
-                e.preventDefault();
-                addSkill(skillInput.value.trim());
-                skillInput.value = '';
-            }
-        });
-
-        function addSkill(skill) {
-            const container = document.getElementById('skillsContainer');
-            const tag = document.createElement('div');
-            tag.className = 'skill-tag';
-            tag.innerHTML = `
-                ${skill}
-                <button onclick="this.parentElement.remove()">×</button>
-            `;
-            container.appendChild(tag);
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
