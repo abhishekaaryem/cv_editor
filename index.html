@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV Parser - Gemini OCR</title>
+    <title>CV Parser</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -16,7 +16,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f7fa;
             min-height: 100vh;
             padding: 20px;
         }
@@ -31,20 +31,22 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
+            background: #1f2937;
+            color: #ffffff;
+            padding: 28px 40px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 1.8em;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
         .header p {
             opacity: 0.9;
-            font-size: 1.1em;
+            font-size: 0.95em;
+            margin: 0;
         }
 
         .content {
@@ -54,25 +56,26 @@
         .upload-section {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
             align-items: center;
-            padding: 60px 40px;
-            border: 3px dashed #667eea;
-            border-radius: 15px;
+            padding: 36px 28px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: #f8f9ff;
+            transition: all 0.15s ease;
+            background: #ffffff;
         }
 
         .upload-section:hover {
-            border-color: #764ba2;
-            background: #f0f2ff;
+            border-color: #9ca3af;
             transform: translateY(-2px);
         }
 
         .upload-icon {
-            font-size: 4em;
-            margin-bottom: 10px;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
         }
 
         .upload-section h3 {
@@ -129,7 +132,7 @@
 
         .loading {
             text-align: center;
-            padding: 60px 20px;
+            padding: 30px 20px;
         }
 
         .spinner {
@@ -262,21 +265,21 @@
 
         .download-btn {
             width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #1f2937;
             color: white;
             border: none;
-            padding: 18px 30px;
-            border-radius: 10px;
+            padding: 12px 18px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: 600;
-            transition: all 0.3s ease;
-            margin-top: 20px;
+            transition: all 0.15s ease;
+            margin-top: 18px;
         }
 
         .download-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 18px rgba(31,41,55,0.12);
         }
 
         @media (max-width: 768px) {
@@ -302,28 +305,28 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📄 CV Parser</h1>
-            <p>Upload your PDF CV and let AI extract & edit your information</p>
+            <h1>CV Parser</h1>
+            <p>Upload your PDF CV to extract and edit your information</p>
         </div>
 
         <div class="content">
             <div class="api-key-section">
                 <div class="form-group">
-                    <label for="apiKey">Gemini API Key</label>
-                    <input type="text" id="apiKey" placeholder="Enter your Gemini API key" />
+                    <label for="apiKey">API Key</label>
+                    <input type="text" id="apiKey" placeholder="Enter your API key" />
                 </div>
             </div>
 
             <div id="uploadSection" class="upload-section">
-                <div class="upload-icon">📤</div>
+                <div class="upload-icon">Upload</div>
                 <h3>Upload Your CV (PDF)</h3>
-                <p>Click to browse or drag and drop your PDF file here</p>
+                <p>Click to browse or drag & drop your PDF file here</p>
                 <input type="file" id="fileInput" accept=".pdf" class="hidden">
             </div>
 
             <div id="loadingSection" class="loading hidden">
                 <div class="spinner"></div>
-                <p>Processing your CV with Gemini AI...</p>
+                <p>Processing your CV...</p>
             </div>
 
             <div id="formSection" class="hidden">
@@ -397,7 +400,7 @@
                         </div>
                     </div>
 
-                    <button type="button" class="download-btn" onclick="downloadPDF()">📥 Download CV as PDF</button>
+                    <button type="button" class="download-btn" onclick="downloadPDF()">Download PDF</button>
                 </form>
             </div>
         </div>

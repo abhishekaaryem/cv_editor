@@ -1,9 +1,9 @@
 // Initialize PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-// Gemini API settings (no API key here — user must enter it in the UI)
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
-const GEMINI_MODEL = 'gemini-2.5-flash';
+// AI service settings (no API key here — user must enter it in the UI)
+const API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
+const MODEL_NAME = 'gemini-2.5-flash';
 
 // DOM Elements
 const uploadSection = document.getElementById('uploadSection');
@@ -47,7 +47,7 @@ fileInput.addEventListener('change', (e) => {
 async function handleFileUpload(file) {
     const apiKey = document.getElementById('apiKey').value.trim();
     if (!apiKey) {
-        alert('Please enter your Gemini API key first!');
+        alert('Please enter your API key first!');
         return;
     }
 
@@ -77,7 +77,7 @@ async function handleFileUpload(file) {
             images.push(imageData);
         }
 
-        const jsonString = await sendToGemini(images, apiKey);
+        const jsonString = await sendToAI(images, apiKey);
         parseAndFillForm(jsonString);
         formSection.classList.remove('hidden');
 
@@ -85,10 +85,10 @@ async function handleFileUpload(file) {
         console.error('Error:', error);
         let errorMessage = 'Error processing PDF: ' + error.message;
 
-        if (error.message.includes('API key')) {
-            errorMessage = 'Invalid Gemini API key. Please check your API key and try again.\n\nGet your API key from: https://aistudio.google.com/apikey';
-        } else if (error.message.includes('quota')) {
-            errorMessage = 'API quota exceeded. Please check your Gemini API usage limits.';
+        if (error.message.toLowerCase().includes('api key')) {
+            errorMessage = 'Invalid API key. Please check your API key and try again.';
+        } else if (error.message.toLowerCase().includes('quota')) {
+            errorMessage = 'API quota exceeded. Please check your API usage limits.';
         }
 
         alert(errorMessage);
@@ -98,8 +98,8 @@ async function handleFileUpload(file) {
     }
 }
 
-// Send PDF images to Gemini API
-async function sendToGemini(images, apiKey) {
+// Send PDF images to AI service
+async function sendToAI(images, apiKey) {
     try {
         const parts = [
             {
@@ -126,7 +126,7 @@ async function sendToGemini(images, apiKey) {
             });
         });
 
-        const response = await fetch(`${GEMINI_API_ENDPOINT}${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
+        const response = await fetch(`${API_ENDPOINT}${MODEL_NAME}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -140,19 +140,19 @@ async function sendToGemini(images, apiKey) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
+            throw new Error(`${errorData.error?.message || response.statusText}`);
         }
 
         const data = await response.json();
 
         if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-            throw new Error('Invalid response from Gemini API');
+            throw new Error('Invalid response from AI service');
         }
 
         return data.candidates[0].content.parts[0].text;
     } catch (error) {
-        console.error('Gemini API Error:', error);
-        throw new Error(`Failed to process with Gemini: ${error.message}`);
+        console.error('AI API Error:', error);
+        throw new Error(`Failed to process with AI service: ${error.message}`);
     }
 }
 
