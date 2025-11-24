@@ -237,7 +237,7 @@ function addExperience() {
     const div = document.createElement('div');
     div.className = 'experience-item';
     div.innerHTML = `
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+        <button type="button" class="remove-btn" onclick="this.closest('.experience-item').remove()" aria-label="Remove experience">×</button>
         <div class="form-group">
             <label>Company</label>
             <input type="text" name="exp_company_${expCount}" placeholder="Company Name">
@@ -271,7 +271,7 @@ function addEducation() {
     const div = document.createElement('div');
     div.className = 'education-item';
     div.innerHTML = `
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+        <button type="button" class="remove-btn" onclick="this.closest('.education-item').remove()" aria-label="Remove education">×</button>
         <div class="form-group">
             <label>Institution</label>
             <input type="text" name="edu_institution_${eduCount}" placeholder="University Name">
@@ -301,7 +301,7 @@ function addCertification() {
     const div = document.createElement('div');
     div.className = 'cert-item';
     div.innerHTML = `
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+        <button type="button" class="remove-btn" onclick="this.closest('.cert-item').remove()" aria-label="Remove certification">×</button>
         <div class="grid-2">
             <div class="form-group">
                 <label>Certification Name</label>
